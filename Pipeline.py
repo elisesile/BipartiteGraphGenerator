@@ -15,7 +15,7 @@ class Pipeline():
         self.quote_clusters = []
         self.graph = BipartiteGraph.Graph()
 
-        self.articles = pd.read_json("Data/" + filename, lines='true')
+        self.articles = pd.read_json(filename, lines='true')
         self.speaker = speaker_of_discourses
 
         self.discourses = pd.read_csv("Data/" + speaker_of_discourses + 'Speeches.csv')
