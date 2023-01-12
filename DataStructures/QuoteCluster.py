@@ -3,7 +3,7 @@ from difflib import SequenceMatcher
 
 class QuoteCluster():
 
-    def __init__(self, initial_quote, discourse, id):
+    def __init__(self, id, initial_quote, discourse):
 
         self.quotes = []
         self.quotes.append(initial_quote)
@@ -20,7 +20,7 @@ class QuoteCluster():
         if len(match) > len(self.match) : 
             self.match = match
 
-    def is_new_quote_in_cluster(self, quote, common_string_min_len=35):
+    def is_new_quote_in_cluster(self, quote, common_string_min_len):
 
         if quote.date < self.discourse.date:
             return False
