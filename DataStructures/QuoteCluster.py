@@ -22,9 +22,6 @@ class QuoteCluster():
 
     def is_new_quote_in_cluster(self, quote, common_string_min_len):
 
-        if quote.date < self.discourse.date:
-            return False
-
         for quotes in self.quotes :
 
             seqMatch = SequenceMatcher(None,quote.text,quotes.text, False) 

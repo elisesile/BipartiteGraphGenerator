@@ -32,9 +32,9 @@ class Pipeline():
 
     def data_cleaning(self):
 
-        print('Careful, this step is to adapt to the speaker. \nCurrent speaker is François Hollande')
+        print('Careful, this step is to adapt to the speaker. \nCurrent speaker is Emmanuel Macron')
 
-        self.articles = self.articles.loc[~ self.articles["document"].str.contains('hollandais|en Hollande')].loc[self.articles['docTime'] > "1995-01-01"] # First discourse by F. Hollande in 1995
+        self.articles = self.articles.loc[self.articles['docTime'] > "2017-01-01"] # First discourse by F. Hollande in 1995
 
         self.articles['splitted_quotes'] = self.articles.document.apply(lambda x : re.split('\"|\»|\«', x)[1::2]) # Split on "" and select only odd index returns, even being text around bracketed text
 
@@ -42,8 +42,8 @@ class Pipeline():
         self.articles = self.articles.loc[self.articles.splitted_quotes.str.len() > 35] # Filter by quote length, uninterested by quotes under 35 characters 
 
         self.articles['docTime'] = pd.to_datetime(self.articles.docTime, format='%Y-%m-%d', errors='coerce')
-        self.articles.dropna(subset=['docTime'], inplace=True)
         self.articles.dropna(subset=['splitted_quotes'], inplace=True)
+        self.articles.dropna(subset=['docTime'], inplace=True)
 
     def add_discourses_clean_discourseless(self, t, partial_matching_score_threshold):
 
