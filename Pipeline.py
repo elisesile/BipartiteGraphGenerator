@@ -42,6 +42,7 @@ class Pipeline():
         self.articles = self.articles.loc[self.articles.splitted_quotes.str.len() > 35] # Filter by quote length, uninterested by quotes under 35 characters 
 
         self.articles['docTime'] = pd.to_datetime(self.articles.docTime, format='%Y-%m-%d', errors='coerce')
+        self.articles['media'] = self.articles['media'].astype(str)
         self.articles.dropna(subset=['splitted_quotes'], inplace=True)
         self.articles.dropna(subset=['docTime'], inplace=True)
 
@@ -74,7 +75,7 @@ class Pipeline():
 
                 is_assigned = False
                 
-                quote = Quote.Quote(str(discourse_id)+"_"+str(num), quote.media + "/" + quote.author, quote.splitted_quotes, quote.docTime, discourse_id)
+                quote = Quote.Quote(str(discourse_id)+"_"+str(num), quote.media, quote.splitted_quotes, quote.docTime, discourse_id)
                 self.quotes[num] = quote
                 
                 if n_quote_clusters != 0 :
