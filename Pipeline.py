@@ -38,7 +38,7 @@ class Pipeline():
 
         self.articles['splitted_quotes'] = self.articles.document.apply(lambda x : re.split('\"|\»|\«', x)[1::2]) # Split on "" and select only odd index returns, even being text around bracketed text
 
-        self.articles = self.articles.explode('splitted_quotes').reset_index(drop=True).drop(['nativeId','originalDocTime','grabTime','document','urls','tweets', 'docTimeType', 'docTimeModified'], axis=1) # Create a line for each quote identified - duplicating the info of the article
+        self.articles = self.articles.explode('splitted_quotes').reset_index(drop=True).drop(['originalDocTime','grabTime','document','tweets', 'docTimeType', 'docTimeModified'], axis=1) # Create a line for each quote identified - duplicating the info of the article
         self.articles = self.articles.loc[self.articles.splitted_quotes.str.len() > 35] # Filter by quote length, uninterested by quotes under 35 characters 
 
         self.articles['docTime'] = pd.to_datetime(self.articles.docTime, format='%Y-%m-%d', errors='coerce')
@@ -69,13 +69,13 @@ class Pipeline():
         for discourse_id in pd.unique(quotes.disc_id):
             
             quotes_to_consider = quotes.loc[quotes.disc_id == discourse_id]
-            n_quote_clusters = 0
+            n_quote_clusters = 0 
             
             for num, quote in quotes_to_consider.iterrows():
 
                 is_assigned = False
                 
-                quote = Quote.Quote(str(discourse_id)+"_"+str(num), quote.media, quote.splitted_quotes, quote.docTime, discourse_id)
+                quote = Quote.Quote(str(discourse_id)+"_"+str(num), quote.media, quote.splitted_quotes, quote.docTime, discourse_id, quote.urls, quote.title, quote.nativeId)
                 self.quotes[num] = quote
                 
                 if n_quote_clusters != 0 :
@@ -117,6 +117,7 @@ class Pipeline():
             writer.writerow(['cluster_id','discourse_id','match','#quotes'])
             for cluster in self.quote_clusters:
                 if len(cluster.quotes) > 1 :
-                    writer.writerow([cluster.identifier, cluster.discourse, cluster.match, len(cluster.quotes)])
+                    writer.writerow([cluster.identifier, cluster.discourse, cluster.match, len(cluster.quotes), "/".join(cluster.urls), "/".join(cluster.art_title), "/".join(cluster.art_date), "/".join(cluster.quotes_id)])
                 else :
-                    writer.writerow([cluster.identifier, cluster.discourse, cluster.quotes[0].text, len(cluster.quotes)])
+                    print(cluster.urls)
+                    writer.writerow([cluster.identifier, cluster.discourse, cluster.quotes[0].text, len(cluster.quotes), "/".join(cluster.urls), "/".join(cluster.art_title), "/".join(cluster.art_date), "/".join(cluster.quotes_id)])

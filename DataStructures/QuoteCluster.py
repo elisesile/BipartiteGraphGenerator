@@ -10,10 +10,18 @@ class QuoteCluster():
         self.discourse = discourse
         self.identifier = id
         self.match = ""
+        self.urls = [initial_quote.url]
+        self.quotes_id = [str(initial_quote.origin_id)]
+        self.art_title = [str(initial_quote.art_title)]
+        self.art_date = [str(initial_quote.date)]
 
     def add_quote(self, quote):
 
         self.quotes.append(quote)
+        self.urls.append(str(quote.url))
+        self.quotes_id.append(str(quote.origin_id))
+        self.art_title.append(str(quote.art_title))
+        self.art_date.append(str(quote.date))
 
     def add_match(self, match):
 
