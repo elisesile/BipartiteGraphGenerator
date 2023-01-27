@@ -4,13 +4,21 @@ import re, csv
 from datetime import datetime, timedelta
 from fuzzywuzzy import fuzz
 import numpy as np
+import logging
+
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(name)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger("pipeline")
 
 #A Pipeline for the bipartite graph constructor#
 
 class Pipeline():
 
-    def __init__(self, filename, speaker_of_discourses, t=7, partial_matching_score_threshold=65, cluster_belonging_common_string_min_len=35):
-        
+    def __init__(self, filename, speaker_of_discourses, t=7, partial_matching_score_threshold=65,
+                 cluster_belonging_common_string_min_len=35, debug=False):
+        logger.info("Starting %s speeches on %s", speaker_of_discourses, filename)
+        self.debug = debug
+        if self.debug:
+            logger.info("Debug activated")
         self.quotes = {}
         self.quote_clusters = []
         self.graph = BipartiteGraph.Graph()
@@ -23,16 +31,16 @@ class Pipeline():
         self.discourses.dropna(subset=["date"], inplace=True)
 
         self.data_cleaning()
-        print("\nArticles Cleaned !")
+        logger.info("Articles Cleaned !")
         self.add_discourses_clean_discourseless(t, partial_matching_score_threshold)
-        print("\nDiscourses Linked to Quotes !")
+        logger.info("Discourses Linked to Quotes !")
         self.define_quote_clusters(self.articles, cluster_belonging_common_string_min_len)
-        print("\nQuote Clusters Created !")
+        logger.info("Quote Clusters Created !")
         self.to_csv()
 
     def data_cleaning(self):
 
-        print('Careful, this step is to adapt to the speaker. \nCurrent speaker is Emmanuel Macron')
+        logger.info('Careful, this step is to adapt to the speaker. Current speaker is %s', self.speaker)
 
         self.articles = self.articles.loc[self.articles['docTime'] > "2017-01-01"] # First discourse by F. Hollande in 1995
 
@@ -47,13 +55,16 @@ class Pipeline():
         self.articles.dropna(subset=['docTime'], inplace=True)
 
     def add_discourses_clean_discourseless(self, t, partial_matching_score_threshold):
-
-        self.articles.loc[:,'disc_id'] = self.articles.apply(lambda x:self.attribute_quote_to_discourse(x.splitted_quotes, x.docTime, t, partial_matching_score_threshold), axis=1)
-
+        self.count = 0
+        self.articles['disc_id'] = self.articles.apply(lambda x:self.attribute_quote_to_discourse(x.splitted_quotes, x.docTime, x.nativeId, t, partial_matching_score_threshold), axis=1)
         self.articles = self.articles.loc[self.articles.disc_id != "default"]
 
-    def attribute_quote_to_discourse(self, quote_text, quote_date, t, threshold):
-
+    def attribute_quote_to_discourse(self, quote_text, quote_date, quote_id, t, threshold):
+        self.count += 1
+        if self.debug:
+            logger.info("  ... article %d / %d - %s", self.count, self.articles.shape[0], quote_id)
+        elif self.count % 1000 == 0:
+            logger.info("  ... article %d / %d", self.count, self.articles.shape[0])
         discourses = self.discourses.loc[((self.discourses.date) >= np.datetime64((quote_date - timedelta(days=t)).to_pydatetime())) & ((self.discourses.date) <= np.datetime64(quote_date.to_pydatetime()))]
 
         discourses.loc[:, "NWscore"]  = discourses['content'].apply(lambda x:fuzz.partial_token_sort_ratio(x, quote_text))
@@ -92,7 +103,7 @@ class Pipeline():
                     self.graph.add_edge(quote, self.quote_clusters[-1])
                     n_quote_clusters += 1
                     
-            print("Treated discourse n°", discourse_id)
+            logger.info("Treated discourse n° %d", discourse_id)
     
     def quote_not_in_existing_cluster(self, quote):
 
@@ -103,7 +114,7 @@ class Pipeline():
         
         self.graph_to_csv()
         self.clusters_to_csv()
-        print("Your files are being written in the Results/ folder, under names starting with", self.speaker)
+        logger.info("Your files are being written in the Results/ folder, under names starting with %s", self.speaker)
 
     def graph_to_csv(self):
         

@@ -1,4 +1,4 @@
-DataStructures/__pycache__/QuoteCluster.cpython-38.pyc
-DataStructures/__pycache__/BipartiteGraph.cpython-38.pyc
-DataStructures/__pycache__/Quote.cpython-38.pyc
-__pycache__/Pipeline.cpython-38.pyc
+DataStructures/__pycache__/
+__pycache__/
+Results/*.csv
+.idea/
