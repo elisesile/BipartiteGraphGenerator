@@ -14,7 +14,7 @@ logger = logging.getLogger("pipeline")
 class Pipeline():
 
     def __init__(self, filename, speaker_of_discourses, t=7, partial_matching_score_threshold=55, cluster_belonging_common_string_min_len=35):
-        
+        logger.info("Starting %s speeches on %s", speaker_of_discourses, filename)
         self.quotes = {}
         self.quote_clusters = []
         self.graph = BipartiteGraph.Graph()
@@ -51,12 +51,14 @@ class Pipeline():
         self.articles.dropna(subset=['docTime'], inplace=True)
 
     def add_discourses_clean_discourseless(self, t, partial_matching_score_threshold):
-
+        self.count = 0
         self.articles['disc_id'] = self.articles.apply(lambda x:self.attribute_quote_to_discourse(x.splitted_quotes, x.docTime, t, partial_matching_score_threshold), axis=1)
         self.articles = self.articles.loc[self.articles.disc_id != "default"]
 
     def attribute_quote_to_discourse(self, quote_text, quote_date, t, threshold):
-
+        self.count += 1
+        if self.count % 1000 == 0:
+            logger.info("  ... article %d / %d", self.count, self.articles.shape[0])
         discourses = self.discourses.loc[((self.discourses.date) >= np.datetime64((quote_date - timedelta(days=t)).to_pydatetime())) & ((self.discourses.date) <= np.datetime64(quote_date.to_pydatetime()))]
         discourses['NWscore'] = discourses['content'].map(lambda x : fuzz.partial_ratio(x, quote_text))
 
