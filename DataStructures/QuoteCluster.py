@@ -1,5 +1,8 @@
 from fuzzywuzzy import fuzz
 from difflib import SequenceMatcher
+import logging
+
+logger = logging.getLogger("quote   ")
 
 class QuoteCluster():
 
@@ -36,7 +39,7 @@ class QuoteCluster():
             match = seqMatch.find_longest_match(0, len(quote.text), 0, len(quotes.text)) 
 
             if match.size > common_string_min_len :
-                print ("Common Substring ::>",quote.text[match.a: match.a + match.size])
+                logger.info("Common Substring ::> %s",quote.text[match.a: match.a + match.size])
                 self.add_match(quote.text[match.a: match.a + match.size])
                 return True
 

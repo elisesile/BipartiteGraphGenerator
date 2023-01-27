@@ -4,6 +4,10 @@ import re, csv
 from datetime import datetime, timedelta
 from fuzzywuzzy import fuzz
 import numpy as np
+import logging
+
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(name)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger("pipeline")
 
 #A Pipeline for the bipartite graph constructor#
 
@@ -23,16 +27,16 @@ class Pipeline():
         self.discourses.dropna(subset=["date"], inplace=True)
 
         self.data_cleaning()
-        print("\nArticles Cleaned !")
+        logger.info("Articles Cleaned !")
         self.add_discourses_clean_discourseless(t, partial_matching_score_threshold)
-        print("\nDiscourses Linked to Quotes !")
+        logger.info("Discourses Linked to Quotes !")
         self.define_quote_clusters(self.articles, cluster_belonging_common_string_min_len)
-        print("\nQuote Clusters Created !")
+        logger.info("Quote Clusters Created !")
         self.to_csv()
 
     def data_cleaning(self):
 
-        print('Careful, this step is to adapt to the speaker. \nCurrent speaker is Emmanuel Macron')
+        logger.info('Careful, this step is to adapt to the speaker. Current speaker is %s', self.speaker)
 
         self.articles = self.articles.loc[self.articles['docTime'] > "2017-01-01"] # First discourse by F. Hollande in 1995
 
@@ -90,7 +94,7 @@ class Pipeline():
                     self.graph.add_edge(quote, self.quote_clusters[-1])
                     n_quote_clusters += 1
                     
-            print("Treated discourse n°", discourse_id)
+            logger.info("Treated discourse n° %d", discourse_id)
     
     def quote_not_in_existing_cluster(self, quote):
 
@@ -101,7 +105,7 @@ class Pipeline():
         
         self.graph_to_csv()
         self.clusters_to_csv()
-        print("Your files are being written in the Results/ folder, under names starting with", self.speaker)
+        logger.info("Your files are being written in the Results/ folder, under names starting with %s", self.speaker)
 
     def graph_to_csv(self):
         
