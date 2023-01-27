@@ -9,7 +9,7 @@ import numpy as np
 
 class Pipeline():
 
-    def __init__(self, filename, speaker_of_discourses, t=7, partial_matching_score_threshold=55, cluster_belonging_common_string_min_len=35):
+    def __init__(self, filename, speaker_of_discourses, t=7, partial_matching_score_threshold=65, cluster_belonging_common_string_min_len=35):
         
         self.quotes = {}
         self.quote_clusters = []
@@ -48,13 +48,15 @@ class Pipeline():
 
     def add_discourses_clean_discourseless(self, t, partial_matching_score_threshold):
 
-        self.articles['disc_id'] = self.articles.apply(lambda x:self.attribute_quote_to_discourse(x.splitted_quotes, x.docTime, t, partial_matching_score_threshold), axis=1)
+        self.articles.loc[:,'disc_id'] = self.articles.apply(lambda x:self.attribute_quote_to_discourse(x.splitted_quotes, x.docTime, t, partial_matching_score_threshold), axis=1)
+
         self.articles = self.articles.loc[self.articles.disc_id != "default"]
 
     def attribute_quote_to_discourse(self, quote_text, quote_date, t, threshold):
 
         discourses = self.discourses.loc[((self.discourses.date) >= np.datetime64((quote_date - timedelta(days=t)).to_pydatetime())) & ((self.discourses.date) <= np.datetime64(quote_date.to_pydatetime()))]
-        discourses['NWscore'] = discourses['content'].map(lambda x : fuzz.partial_ratio(x, quote_text))
+
+        discourses.loc[:, "NWscore"]  = discourses['content'].apply(lambda x:fuzz.partial_token_sort_ratio(x, quote_text))
 
         if discourses.NWscore.max() > threshold :
             id_disc = discourses['NWscore'].idxmax()
@@ -70,7 +72,7 @@ class Pipeline():
             
             quotes_to_consider = quotes.loc[quotes.disc_id == discourse_id]
             n_quote_clusters = 0 
-            
+
             for num, quote in quotes_to_consider.iterrows():
 
                 is_assigned = False
