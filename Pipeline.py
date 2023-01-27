@@ -119,5 +119,4 @@ class Pipeline():
                 if len(cluster.quotes) > 1 :
                     writer.writerow([cluster.identifier, cluster.discourse, '"' + str(cluster.match) + '"', len(cluster.quotes), "/".join(cluster.urls), '"' + "/".join(cluster.art_title) + '"', "/".join(cluster.art_date), "/".join(cluster.quotes_id)])
                 else :
-                    print(cluster.urls)
                     writer.writerow([cluster.identifier, cluster.discourse, '"' + str(cluster.quotes[0].text) + '"', len(cluster.quotes), "/".join(cluster.urls), '"' + "/".join(cluster.art_title) + '"', "/".join(cluster.art_date), "/".join(cluster.quotes_id)])
