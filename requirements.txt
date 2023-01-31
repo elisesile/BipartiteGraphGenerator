@@ -1,0 +1,4 @@
+rapidfuzz
+numpy
+pandas
+python-Levenshtein
