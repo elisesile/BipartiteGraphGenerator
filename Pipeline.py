@@ -2,7 +2,7 @@ from DataStructures import Quote, BipartiteGraph, QuoteCluster
 import pandas as pd
 import re, csv
 from datetime import datetime, timedelta
-from fuzzywuzzy import fuzz
+from rapidfuzz import fuzz
 import numpy as np
 import logging
 
@@ -42,7 +42,9 @@ class Pipeline():
 
         logger.info('Careful, this step is to adapt to the speaker. Current speaker is %s', self.speaker)
 
-        self.articles = self.articles.loc[self.articles['docTime'] > "2017-01-01"] # First discourse by F. Hollande in 1995
+        self.articles = self.articles.loc[self.articles['docTime'] > "2017-01-01"]
+
+        self.articles['document'] = self.articles.document.apply(lambda x:"ggg "+x)
 
         self.articles['splitted_quotes'] = self.articles.document.apply(lambda x : re.split('\"|\»|\«', x)[1::2]) # Split on "" and select only odd index returns, even being text around bracketed text
 
@@ -67,7 +69,7 @@ class Pipeline():
             logger.info("  ... article %d / %d", self.count, self.articles.shape[0])
         discourses = self.discourses.loc[((self.discourses.date) >= np.datetime64((quote_date - timedelta(days=t)).to_pydatetime())) & ((self.discourses.date) <= np.datetime64(quote_date.to_pydatetime()))]
 
-        discourses.loc[:, "NWscore"]  = discourses['content'].apply(lambda x:fuzz.partial_token_sort_ratio(x, quote_text))
+        discourses.loc[:, "NWscore"]  = discourses['content'].apply(lambda x:fuzz.partial_ratio(quote_text, x))
 
         if discourses.NWscore.max() > threshold :
             id_disc = discourses['NWscore'].idxmax()
