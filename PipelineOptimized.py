@@ -50,7 +50,7 @@ class Pipeline():
 
                 for line in ijson.items(f, '', multiple_values=True):
                     
-                    quotes = re.split('\"|\»|\«', "aa" + line['document'])[1::2]
+                    quotes = re.split('\"|\»|\«', "a" + line['document'])[1::2]
                     i = 0
 
                     for quote in quotes:
@@ -61,8 +61,12 @@ class Pipeline():
                                 url = line['urls']
                             except Exception as e:
                                 url = ""
+                            try:
+                                media = line['media']
+                            except Exception as e:
+                                media = ""
                             
-                            writer.writerow([str(i)+"_"+str(line['id']),line['nativeId'],line['docTime'],line['media'],line['title'],quote,url])
+                            writer.writerow([str(i)+"_"+str(line['id']),line['nativeId'],line['docTime'],media,line['title'],quote,url])
                             i += 1
 
 # ~*~*~**~*MATCHING QUOTES AND DISCOURSES*~**~*~*~*~
