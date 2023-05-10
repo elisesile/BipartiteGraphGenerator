@@ -2,3 +2,4 @@ rapidfuzz
 numpy
 pandas
 python-Levenshtein
+ijson

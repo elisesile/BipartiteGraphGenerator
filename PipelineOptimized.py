@@ -15,8 +15,12 @@ logger = logging.getLogger("pipeline")
 class Pipeline():
 
     def __init__(self, filename, speaker, quotesOutFile, t=7, partial_matching_score_threshold=85,
-                 cluster_belonging_common_string_min_len=35, quotes_already_extracted=False, chunksize=1000):
-        
+                 cluster_belonging_common_string_min_len=35, quotes_already_extracted=False, chunksize=1000, debug=False):
+
+        self.debug = debug
+        if self.debug:
+            logger.info("Debug activated")
+
         self.filename = filename
         self.discourses = self.get_discourses(speaker)
         self.quotes_out_file = quotesOutFile
@@ -47,9 +51,13 @@ class Pipeline():
                 
                 writer = csv.writer(o)
                 writer.writerow(["quote_id","native_id","doc_time","media","title","quote","urls"])
+                counter = 0
 
                 for line in ijson.items(f, '', multiple_values=True):
-                    
+                    counter +=1
+                    if counter % 1000 == 0 and self.debug:
+                        logger.info(f'going_through_file - {counter}')
+
                     quotes = re.split('\"|\»|\«', "a" + line['document'])[1::2]
                     i = 0
 
