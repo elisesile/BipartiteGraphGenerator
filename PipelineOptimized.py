@@ -62,20 +62,26 @@ class Pipeline():
                         quotes = re.split('\"|\»|\«', "a" + line['document'])[1::2]
                         i = 0
 
+                        nativeId = ""
+                        docTime = ""
+                        title = ""
+                        url = ""
+                        media = ""
+
+                        if "urls" in line:
+                            url = line['urls']
+                        if "media" in line:
+                            media = line['media']
+                        if "nativeId" in line:
+                            nativeId = line['nativeId']
+                        if "docTime" in line:
+                            docTime = line['docTime']
+                        if "title" in line:
+                            title = line['title']
+
                         for quote in quotes:
-
                             if len(quote) > 35 :
-
-                                try:
-                                    url = line['urls']
-                                except Exception as e:
-                                    url = ""
-                                try:
-                                    media = line['media']
-                                except Exception as e:
-                                    media = ""
-
-                                writer.writerow([str(i)+"_"+str(line['id']),line['nativeId'],line['docTime'],media,line['title'],quote,url])
+                                writer.writerow([str(i)+"_"+str(line['id']), nativeId, docTime, media,title,quote,url])
                                 i += 1
 
 # ~*~*~**~*MATCHING QUOTES AND DISCOURSES*~**~*~*~*~
