@@ -58,24 +58,25 @@ class Pipeline():
                     if counter % 1000 == 0 and self.debug:
                         logger.info(f'going_through_file - {counter}')
 
-                    quotes = re.split('\"|\»|\«', "a" + line['document'])[1::2]
-                    i = 0
+                    if "document" in line:
+                        quotes = re.split('\"|\»|\«', "a" + line['document'])[1::2]
+                        i = 0
 
-                    for quote in quotes:
+                        for quote in quotes:
 
-                        if len(quote) > 35 :
+                            if len(quote) > 35 :
 
-                            try:
-                                url = line['urls']
-                            except Exception as e:
-                                url = ""
-                            try:
-                                media = line['media']
-                            except Exception as e:
-                                media = ""
-                            
-                            writer.writerow([str(i)+"_"+str(line['id']),line['nativeId'],line['docTime'],media,line['title'],quote,url])
-                            i += 1
+                                try:
+                                    url = line['urls']
+                                except Exception as e:
+                                    url = ""
+                                try:
+                                    media = line['media']
+                                except Exception as e:
+                                    media = ""
+
+                                writer.writerow([str(i)+"_"+str(line['id']),line['nativeId'],line['docTime'],media,line['title'],quote,url])
+                                i += 1
 
 # ~*~*~**~*MATCHING QUOTES AND DISCOURSES*~**~*~*~*~
 
